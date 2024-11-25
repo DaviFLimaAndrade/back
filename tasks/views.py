@@ -45,6 +45,35 @@ class TarefaDetail(APIView):
         except Tarefa.DoesNotExist:
             return Response({"detail": "Tarefa não encontrada."}, status=status.HTTP_404_NOT_FOUND)
 
+    def put(self, request, pk):
+        try:
+            tarefa = Tarefa.objects.get(pk=pk)
+        except Tarefa.DoesNotExist:
+            return Response({"detail": "Tarefa não encontrada."}, status=status.HTTP_404_NOT_FOUND)
+
+        # Atualizando os campos conforme os dados da requisição
+        tarefa.descricao = request.data.get('descricao', tarefa.descricao)
+        tarefa.nome_setor = request.data.get('nome_setor', tarefa.nome_setor)
+        tarefa.prioridade = request.data.get('prioridade', tarefa.prioridade)
+        tarefa.status = request.data.get('status', tarefa.status)
+
+        # Salvando a tarefa atualizada
+        tarefa.save()
+
+        # Retornando a tarefa atualizada
+        serializer = TarefaSerializer(tarefa)
+        return Response(serializer.data)
+
+    def delete(self, request, pk):
+        try:
+            tarefa = Tarefa.objects.get(pk=pk)
+        except Tarefa.DoesNotExist:
+            return Response({"detail": "Tarefa não encontrada."}, status=status.HTTP_404_NOT_FOUND)
+
+        tarefa.delete()
+        return Response({"detail": "Tarefa excluída com sucesso."}, status=status.HTTP_204_NO_CONTENT)
+    
+
 class UsuarioList(APIView):
     def get(self, request):
         usuarios = Usuario.objects.all()
